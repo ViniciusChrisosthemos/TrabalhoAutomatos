@@ -3,14 +3,20 @@ class State:
 
     def __init__(self, id):
         self.id = id
-        self.transition = {}
+        self.transitions = {}
         self.is_final = False
 
     def do_transition(self, symbol):
-        if symbol in self.transition:
-            return self.transition[symbol]
+        if symbol in self.transitions:
+            return self.transitions[symbol]
         
         return None
 
     def __repr__(self):
-        return str(self.__dict__)
+        copy = self.__dict__.copy()
+        transitions = []
+        for symbol in copy["transitions"]:
+            transitions.extend([(symbol, state) for state in copy['transitions'][symbol]])
+        copy["transitions"] = transitions
+
+        return str(copy)
