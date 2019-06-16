@@ -1,6 +1,7 @@
 import sys
 import argparse
 from Automaton import Automaton
+from State import State
 
 
 def handle_arguments():
@@ -21,7 +22,18 @@ def create_parse():
 def loadAutomaton(file_path):
   pass
 
-def create_automaton(automaton_info):
+def create_automaton(id, states_list, symbols_list, init_state, final_states_list, transitions_list):
+  states = {}
+  for id in states_list:
+    states[id] = State(id)
+  
+  init_state = states[init_state]
+
+  for id in final_states_list:
+    states[id].is_final = True
+  
+  # Processa as transições
+  print(states)
   return None
 
   
@@ -37,4 +49,11 @@ def main():
   pass
   
 if __name__== "__main__":
-  main()
+  #main()
+  string = "a=({q0,q1,q2},{a,b,c},q0,{q1,q2})".replace("=({",";")\
+                                              .replace("},{", ";").replace("},", ";")\
+                                              .replace(",{", ";").replace("})", "")
+
+  create_automaton("asd", ["q0","q1","q2","q3"], [], "q1", ["q2","q3"], [])
+
+  print(string)

@@ -1,3 +1,4 @@
+import copy
 class State:
 
     def __init__(self, id):
@@ -10,3 +11,6 @@ class State:
             return self.transition[symbol]
         
         return None
+
+    def __repr__(self):
+        return str(self.__dict__)
