@@ -1,4 +1,4 @@
-AUTÔMATO=({q0,q1,q2},{a,b},q0,{q2})
+AUTÔMATO=({q0,q1,q2,q3},{a,b},q0,{q2})
 Prog
 (q0,a)=q1
 (q0,b)=q0

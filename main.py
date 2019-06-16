@@ -42,7 +42,7 @@ def loadAutomaton(file_path):
       transition = transition.replace("(", "").replace(")=", ",")
       trans_formated.append(transition.split(",")) 
 
-    create_automaton(id, states, symbols, init_state, final_states, trans_formated)
+    return create_automaton(id, states, symbols, init_state, final_states, trans_formated)
 
   except RuntimeError:
     print("Error")
@@ -50,7 +50,9 @@ def loadAutomaton(file_path):
 
   pass
 
-def create_automaton(id, states_list, symbols_list, init_state, final_states_list, transitions_list):
+def create_automaton(auto_id, states_list, symbols_list, init_state, final_states_list, transitions_list):
+  auto_id = auto_id[0]
+  
   states = {}
   for id in states_list:
     states[id] = State(id)
@@ -67,17 +69,24 @@ def create_automaton(id, states_list, symbols_list, init_state, final_states_lis
     if symbol not in states[origin].transitions:
       states[origin].transitions[symbol] = []
 
-    states[origin].transitions[symbol].append(destiny)
+    states[origin].transitions[symbol].append(states[destiny])
 
-  print(states)
-  return None
+  return Automaton(auto_id, states, symbols_list, init_state)
 
   
 
 def main():
   file_path = handle_arguments()
-  loadAutomaton(file_path)
-  pass
+  automaton = loadAutomaton(file_path)
+
+  print(automaton)
+
+  print("ababab -> ", automaton.validateWord("ababab"))
+  print("aaabbb -> ", automaton.validateWord("aaabbb"))
+  print("ab -> ", automaton.validateWord("ab"))
+  print("baba -> ", automaton.validateWord("baba"))
+  print("b -> ", automaton.validateWord("b"))
+  print("a -> ", automaton.validateWord("a"))
   
 if __name__== "__main__":
   main()
