@@ -1,6 +1,8 @@
 import sys
 import argparse
+import queue
 from Automaton import Automaton
+from CompostState import CompostState
 from State import State
 
 def handle_arguments():
@@ -80,13 +82,30 @@ def main():
   automaton = loadAutomaton(file_path)
 
   print(automaton)
+  afnd_to_afd(automaton)
 
-  print("ababab -> ", automaton.validateWord("ababab"))
-  print("aaabbb -> ", automaton.validateWord("aaabbb"))
-  print("ab -> ", automaton.validateWord("ab"))
-  print("baba -> ", automaton.validateWord("baba"))
-  print("b -> ", automaton.validateWord("b"))
-  print("a -> ", automaton.validateWord("a"))
+def afnd_to_afd(afnd):
+  mqueue = queue.Queue()
+  new_states = {}
+
+  mqueue.put(CompostState([afnd.initial_state]))
+
+  while not mqueue.empty():
+    c_state = mqueue.get()
+
+    for symbol in afnd.symbols:
+      temp_state = CompostState(c_state.get_transitions(symbol))
+
+      if temp_state.id in new_states:
+        c_state.transitions[symbol] = new_states[temp_state.id]
+      else:
+        c_state.transitions[symbol] = temp_state
+        mqueue.put(temp_state)
+    
+    new_states[c_state.id] = c_state
   
+  print(new_states['q0'].get_state())
+    
+
 if __name__== "__main__":
   main()
