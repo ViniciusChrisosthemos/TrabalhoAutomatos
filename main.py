@@ -5,6 +5,9 @@ from Automaton import Automaton
 from CompostState import CompostState
 from State import State
 
+afnd_automaton = None
+afd_automaton = None
+
 def handle_arguments():
   parser = create_parse()
   args = parser.parse_args()
@@ -20,7 +23,9 @@ def create_parse():
 
   return parser
 
-def loadAutomaton(file_path):
+def loadAutomaton():
+  file_path = input('Insira o nome do arquivo a ser carregado: ')
+
   try:
     with open(file_path, 'r') as file:
       lines = file.read().split('\n')
@@ -47,17 +52,16 @@ def loadAutomaton(file_path):
     return create_automaton(id, states, symbols, init_state, final_states, trans_formated)
 
   except RuntimeError:
-    print("Error")
+    print("Erro ao carregar o arquivo "+file_path)
+    return None
   
-
-  pass
 
 def create_automaton(auto_id, states_list, symbols_list, init_state, final_states_list, transitions_list):
   auto_id = auto_id[0]
   
   states = {}
   for id in states_list:
-    states[id] = State(id)
+    states[id] = State(id, False, {})
   
   init_state = states[init_state]
 
@@ -68,44 +72,49 @@ def create_automaton(auto_id, states_list, symbols_list, init_state, final_state
     origin = transition[0]
     symbol = transition[1]
     destiny = transition[2]
+
     if symbol not in states[origin].transitions:
       states[origin].transitions[symbol] = []
 
-    states[origin].transitions[symbol].append(states[destiny])
+    states[origin].transitions[symbol].append(destiny)
 
   return Automaton(auto_id, states, symbols_list, init_state)
 
-  
+def write_automaton(automaton):
+  with open('AFD-'+automaton.id+'.txt', 'w+') as file:
+    for state in automaton.states:
+      for transition in automaton.states[state]:
+        line = '('+state+','+transition+')='+automaton.states[state].transitions[transition]
+        file.write(file)
+        file.flush()
+
+
+def print_menu():
+  global afd_automaton, afnd_automaton
+
+  print('\nAutomatos:')
+  print('AFND -> ', 'Ok!' if afnd_automaton else 'None')
+  print('AFD -> ', 'Ok!' if afd_automaton else 'None')
+
+  print('\nEscolha uma ação:')
+  print('\n[1] .......... Carregar autômato de arquivo texto.')
+  print('[2] .......... Converter AFND para AFD.')
+  print('[3] .......... Validar palavras.')
+  print('[4] .......... Validar arquivo de palavras.\n')
 
 def main():
-  file_path = handle_arguments()
-  automaton = loadAutomaton(file_path)
+  global afd_automaton, afnd_automaton
 
-  print(automaton)
-  afnd_to_afd(automaton)
+  while True:
+    print_menu()
+    choice = input('-> ')
 
-def afnd_to_afd(afnd):
-  mqueue = queue.Queue()
-  new_states = {}
-
-  mqueue.put(CompostState([afnd.initial_state]))
-
-  while not mqueue.empty():
-    c_state = mqueue.get()
-
-    for symbol in afnd.symbols:
-      temp_state = CompostState(c_state.get_transitions(symbol))
-
-      if temp_state.id in new_states:
-        c_state.transitions[symbol] = new_states[temp_state.id]
-      else:
-        c_state.transitions[symbol] = temp_state
-        mqueue.put(temp_state)
-    
-    new_states[c_state.id] = c_state
-  
-  print(new_states['q0'].get_state())
-    
+    if choice == '0':
+      break
+    elif choice == '1':
+      afnd_automaton = loadAutomaton()
+      if afnd_automaton:
+        print('Automaton carregado com sucesso!')
 
 if __name__== "__main__":
   main()

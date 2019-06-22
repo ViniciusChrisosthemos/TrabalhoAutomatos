@@ -1,10 +1,10 @@
 import copy
 class State:
 
-    def __init__(self, id):
+    def __init__(self, id, is_final=False, transitions={}):
         self.id = id
-        self.transitions = {}
-        self.is_final = False
+        self.transitions = transitions
+        self.is_final = is_final
 
     def do_transition(self, symbol):
         states = []
@@ -16,9 +16,4 @@ class State:
 
     def __repr__(self):
         copy = self.__dict__.copy()
-        transitions = []
-        for symbol in copy["transitions"]:
-            transitions.extend([(symbol, state.id) for state in copy['transitions'][symbol]])
-        copy["transitions"] = transitions
-
         return str(copy)
