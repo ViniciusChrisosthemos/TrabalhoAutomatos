@@ -1,4 +1,4 @@
-from CompostState import CompostState
+from src.CompostState import CompostState
 import queue
 
 class Automaton:
@@ -9,7 +9,7 @@ class Automaton:
         self.symbols = symbols
         self.initial_state = initial_state
 
-    def validateWord(self, word):
+    def validate_word(self, word):
         states = [self.initial_state.id]
 
         try:
@@ -70,6 +70,17 @@ class Automaton:
         return Automaton('AFD-'+self.id, states, self.symbols, states[self.initial_state.id])
 
     def __repr__(self):
-        copy = self.__dict__.copy()
-        copy['initial_state'] = copy['initial_state'].id
-        return str(copy)
+        states = [state for state in self.states]
+        final_states = [state for state in self.states if self.states[state].is_final]
+        id = self.id + '=(' + str(states) + ',' + str(self.symbols) + ',' + self.initial_state.id + ',' + str(final_states) + ')'
+        
+        transitions = []
+        for state in self.states:
+            for transition in self.states[state].transitions:
+                transitions.append((state,transition,self.states[state].transitions[transition]))
+        
+        str_transitions = ''
+        for transition in transitions:
+            str_transitions += str(transition) + '\n' 
+
+        return id + '\n' + str_transitions

@@ -1,120 +1,85 @@
 import sys
-import argparse
-import queue
-from Automaton import Automaton
-from CompostState import CompostState
-from State import State
+from src.Manager import Manager
 
-afnd_automaton = None
-afd_automaton = None
-
-def handle_arguments():
-  parser = create_parse()
-  args = parser.parse_args()
-
-  file_path = args.file
-
-  return file_path
-
-
-def create_parse():
-  parser = argparse.ArgumentParser(prog='Autômatos')
-  parser.add_argument('-file', required=True, type=str)
-
-  return parser
-
-def loadAutomaton():
-  file_path = input('Insira o nome do arquivo a ser carregado: ')
-
-  try:
-    with open(file_path, 'r') as file:
-      lines = file.read().split('\n')
-
-    auto_info = lines[0]
-    transitions = lines[2:]
-
-    auto_info = auto_info.replace("=({",";")\
-                          .replace("},{", ";").replace("},", ";")\
-                          .replace(",{", ";").replace("})", "")
-    auto_info = [info.split(",") for info in auto_info.split(";")]
-
-    id = auto_info[0]
-    states = auto_info[1]
-    symbols = auto_info[2]
-    init_state = auto_info[3][0]
-    final_states = auto_info[4]
-
-    trans_formated = []
-    for transition in transitions:
-      transition = transition.replace("(", "").replace(")=", ",")
-      trans_formated.append(transition.split(",")) 
-
-    return create_automaton(id, states, symbols, init_state, final_states, trans_formated)
-
-  except RuntimeError:
-    print("Erro ao carregar o arquivo "+file_path)
-    return None
-  
-
-def create_automaton(auto_id, states_list, symbols_list, init_state, final_states_list, transitions_list):
-  auto_id = auto_id[0]
-  
-  states = {}
-  for id in states_list:
-    states[id] = State(id, False, {})
-  
-  init_state = states[init_state]
-
-  for id in final_states_list:
-    states[id].is_final = True
-  
-  for transition in transitions_list:
-    origin = transition[0]
-    symbol = transition[1]
-    destiny = transition[2]
-
-    if symbol not in states[origin].transitions:
-      states[origin].transitions[symbol] = []
-
-    states[origin].transitions[symbol].append(destiny)
-
-  return Automaton(auto_id, states, symbols_list, init_state)
-
-def write_automaton(automaton):
-  with open('AFD-'+automaton.id+'.txt', 'w+') as file:
-    for state in automaton.states:
-      for transition in automaton.states[state]:
-        line = '('+state+','+transition+')='+automaton.states[state].transitions[transition]
-        file.write(file)
-        file.flush()
-
+load_file = 'lf'
+convert = 'c'
+validate_word = 'vw'
+validate_words = 'vws'
+print_option = 'p'
+help_option = 'help'
+exit_option = 'exit'
 
 def print_menu():
-  global afd_automaton, afnd_automaton
-
-  print('\nAutomatos:')
-  print('AFND -> ', 'Ok!' if afnd_automaton else 'None')
-  print('AFD -> ', 'Ok!' if afd_automaton else 'None')
-
-  print('\nEscolha uma ação:')
-  print('\n[1] .......... Carregar autômato de arquivo texto.')
-  print('[2] .......... Converter AFND para AFD.')
-  print('[3] .......... Validar palavras.')
-  print('[4] .......... Validar arquivo de palavras.\n')
+  print('\nComandos:')
+  print(f'\n[{load_file}]   .......... Carregar autômato de arquivo texto.')
+  print(f'[{convert}]    .......... Converter AFND para AFD.')
+  print(f'[{validate_word}]   .......... Validar palavras.')
+  print(f'[{validate_words}]  .......... Validar arquivo de palavras.')
+  print(f'[{print_option}]   .......... Exibir autômato.')
+  print(f'[{help_option}] .......... Exibe comandos.')
+  print(f'[{exit_option}] .......... Fechar programa.')
 
 def main():
-  global afd_automaton, afnd_automaton
+  manager = Manager()
+  print_menu()
 
   while True:
-    print_menu()
-    choice = input('-> ')
+    try:
+      choice = input('\n-> ').split(' ')
 
-    if choice == '0':
-      break
-    elif choice == '1':
-      afnd_automaton = loadAutomaton()
-      if afnd_automaton:
-        print('Automaton carregado com sucesso!')
+      try:
+        if choice[0] == load_file:
+          try:    
+            manager.load_automaton(choice[1])
+            print('\nRESULTADO: Autômato carregado com sucesso!')
+          except FileNotFoundError:
+            print(f'\nRESULTADO: Arquivo {choice[1]} não encontrado.')
+          except RuntimeError:
+            print('\nRESULTADO: Ocorreu um erro ao carregar o autômato.')
+
+        elif choice[0] == validate_word:
+          try:
+            print('\nRESULTADO: ', manager.validate_word(choice[1]))
+          except RuntimeError:
+            print('\nRESULTADO: Ocorreu um erro ao validar a palavra.')
+        
+        elif choice[0] == validate_words:
+          if not manager.automaton:
+            print('\nRESULTADO: Autômato não carregado!')
+          else:
+            try:
+              manager.load_words(choice[1])
+              result = manager.validate_words()
+              print('\nRESULTADO: ')
+
+              for word in result:
+                print(word, '->', result[word])
+
+            except FileNotFoundError:
+              print(f'\nRESULTADO: Arquivo {choice[1]} não encontrado.')
+  
+        elif choice[0] == convert:
+          try:
+            manager.converts_afnd_to_afd()
+            print('\nRESULTADO: Conversão concluida com sucesso!')
+          except RuntimeError:
+            print('\nRESULTADO: Ocorreu um erro ao converter o AFND.')
+
+        elif choice[0] == print_option:
+          print(manager.automaton)
+
+        elif choice[0] == help_option:
+          print_menu()
+
+        elif choice[0] == exit_option:
+          break
+        
+        else:
+          print(f'\nRESULTADO: Comando {choice[0]} não existe!')
+      except RuntimeError:
+        print('\nErro ao processar o comando.\n')
+    except IndexError:
+      print('\nRESULTADO: Quantidade de argumentos inválido para a ação escolhida.')
 
 if __name__== "__main__":
   main()
