@@ -5,6 +5,7 @@ class CompostState:
     def __init__(self, states):
         self.id = ""
         self.is_final = False
+        self.states = states
         states = sorted(states)
         for state in states:
             self.id += state

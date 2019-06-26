@@ -25,8 +25,8 @@ def main():
 
   while True:
     try:
+      choice = []
       choice = input('\n-> ').split(' ')
-
       try:
         if choice[0] == load_file:
           try:    

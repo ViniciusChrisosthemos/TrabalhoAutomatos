@@ -31,7 +31,7 @@ class Automaton:
         states = []
 
         for state in self.states:
-            if self.states[state].id in c_state:
+            if self.states[state].id in c_state.states:
                 if symbol in self.states[state].transitions:
                     states.extend(self.states[state].transitions[symbol])
 
@@ -46,7 +46,7 @@ class Automaton:
             c_state = mqueue.get()
 
             for symbol in self.symbols:
-                transitions = self.get_transitions(c_state.id, symbol)
+                transitions = self.get_transitions(c_state, symbol)
                 if not transitions: 
                     continue
 

@@ -58,24 +58,27 @@ class Manager:
 
             auto_info = lines[0]
             transitions = lines[2:]
-
+            
             auto_info = auto_info.replace("=({",";")\
                                 .replace("},{", ";").replace("},", ";")\
                                 .replace(",{", ";").replace("})", "")
             auto_info = [info.split(",") for info in auto_info.split(";")]
-
+            
             id = auto_info[0]
             states = auto_info[1]
             symbols = auto_info[2]
             init_state = auto_info[3][0]
             final_states = auto_info[4]
-
+            
             trans_formated = []
             for transition in transitions:
-                transition = transition.replace("(", "").replace(")=", ",")
-                trans_formated.append(transition.split(",")) 
-
+                if transition:
+                    transition = transition.replace("(", "").replace(")=", ",")
+                    trans_formated.append(transition.split(",")) 
+            print(id, states, symbols, init_state, final_states, trans_formated)
             self.automaton = self.create_automaton(id, states, symbols, init_state, final_states, trans_formated)
+            
+            print("AQUI!!")
         except RuntimeError:
             raise Exception('Erro ao carregar o autômato.')
 
